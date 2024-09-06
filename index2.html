@@ -1,0 +1,193 @@
+<html>
+	<head>
+		<title>PROYECTO SIG2</title>
+			<link rel="stylesheet" href="OpenLayers/ol.css" type="text/css">  <!-- Librerias de Openlayers css -->
+			<script src="OpenLayers/ol.js" type="text/javascript"></script> <!-- Librerias de Openlayers js -->
+			<script src="JQuery/jquery.js" type="text/javascript"></script> <!-- Librerias de JQuery js -->
+
+			</head>
+	<body>
+		<?php
+		//  1-  Inicio y acceso al sistema, Controla estar logeado en la sesión
+		session_start(); // se inicia una sesión
+
+		$rol = $_SESSION['rol'];
+		
+		if($rol){
+
+			?>		
+			<p> Bienvenido, <?php echo $rol; ?> <a href='salir.php'>Cerrar Sesion</a></p> 
+
+			
+				<div id="mapa" class="mapa" style="height: 500px;width: 720px;" ></div> <!-- Dentro del Rol usuario se define el visor geográfico -->
+				<br>
+				<div> <!-- Dentro del Rol usuario se define las opciones -->
+					
+					<input size="15px" id="cor_origen" type="text" placeholder="Coordenadas Origen" onclick="capturar_click_origen()">
+					<input size="15px" id="cor_destino" type="text" placeholder="Coordenadas Destino" onclick="capturar_click_destino()">
+					<button onclick="calcular_ruta_click()">Calcular Ruta</button>
+					<button onclick="calcular_nodos_click()">Calcular Nodos</button>
+					<button onclick="dist_euclediana_click()">Distancia Euclediana</button>
+					<button onclick="nueva_ruta()">Nueva Ruta</button>
+
+				</div>
+			
+			
+			<?php
+		}
+			
+		else{ // Si no se ha creado el parámetro usuario retornará este mensaje en HTML
+			echo 'Debe Iniciar Sesion Para Acceder';
+			echo '<p><a href="inicio_sesion.php">Iniciar Sesion</a></p>'; // Enlace de inicio de sesión en HTML
+		}
+		?>
+		
+		<script> <!-- Se define JavaScript -->
+			  
+			var map = new ol.Map({
+										layers: [
+										  new ol.layer.Tile({
+											source: new ol.source.OSM()
+										  })
+										],
+										target: 'mapa',
+										view: new ol.View({
+										  projection: 'EPSG:4326',
+										  center: [-76.4, 4],
+										  zoom: 8
+										})
+									});
+									
+			
+			
+			function calcular_ruta_nodo () {
+				var nodo_origen= document.getElementById("nodo_origen").value;
+				var nodo_destino= document.getElementById("nodo_destino").value;
+				var vectorruta = new ol.source.Vector({
+									 url: 'consultas.php?caso=ruta_por_nodo&origen='+nodo_origen+'&destino='+nodo_destino,
+									 format: new ol.format.GeoJSON()
+								  });
+
+				var layer_ruta = new ol.layer.Vector({
+						  source: vectorruta
+					  });
+					  
+				map.addLayer(layer_ruta);
+				
+				setTimeout(function(){
+					var extent = vectorruta.getExtent();
+					  map.getView().fit( extent, map.getSize());
+				}, 500);
+				
+			}
+			
+			function calcular_nodos(){
+				var nodo_origen= document.getElementById("nodo_origen").value;
+				var nodo_destino= document.getElementById("nodo_destino").value;
+				
+				var vector_nodo = new ol.source.Vector({
+									 url: 'consultas.php?caso=nodos&origen='+nodo_origen+'&destino='+nodo_destino,
+									 format: new ol.format.GeoJSON()
+								  });
+
+				var layer_nodo = new ol.layer.Vector({
+						  source: vector_nodo
+					  });
+					  
+				map.addLayer(layer_nodo);
+				
+			}
+			
+			function dist_euclediana_nodo(){
+				var nodo_origen= document.getElementById("nodo_origen").value;
+				var nodo_destino= document.getElementById("nodo_destino").value;
+				
+				$.ajax({
+						type : 'GET',
+						url : 'consultas.php?caso=nodos_dist_eucl&origen='+nodo_origen+'&destino='+nodo_destino,
+						dataType : 'json',
+						success : function(data){
+							alert('Distancia Euclediana: '+data);
+							
+							},
+							error : function(XMLHttpRequest, textStatus, errorThrown) {
+							// Display error
+							}
+					});
+			}
+			
+
+			
+			function capturar_click_origen(){
+				alert('Click sobre el mapa para capturar coordenadas');
+				map.once('click', function(evt) {
+					var lng = evt.coordinate[0].toFixed(6);
+					var lat = evt.coordinate[1].toFixed(6);
+					document.getElementById("cor_origen").value=lng+' '+lat;
+					});
+			}
+			
+			function capturar_click_destino(){
+				alert('Click sobre el mapa para capturar coordenadas');
+				map.once('click', function(evt) {
+					var lng = evt.coordinate[0].toFixed(6);
+					var lat = evt.coordinate[1].toFixed(6);
+					document.getElementById("cor_destino").value=lng+' '+lat;
+					});
+			}
+			
+    $.ajax({
+        dataType: "json",
+        url: 'conexion.php',
+        success: function(data) {
+         		L.geoJson(data, {
+					style: {color: 'red', weight: 5, fillOpacity:0},
+        			onEachFeature: onEachFeature3
+        		}).addTo(map);
+        }
+     }).error(function() {});
+			
+			function calcular_nodos_click(){
+				var cor_origen= document.getElementById("cor_origen").value;
+				var cor_destino= document.getElementById("cor_destino").value;
+				
+				var vector_nodo = new ol.source.Vector({
+									 url: 'consultas.php?caso=nodos_por_click&origen='+cor_origen+'&destino='+cor_destino,
+									 format: new ol.format.GeoJSON()
+								  });
+
+				var layer_nodo = new ol.layer.Vector({
+						  source: vector_nodo
+					  });
+					  
+				map.addLayer(layer_nodo);
+				
+			}
+			
+			function dist_euclediana_click(){
+				var cor_origen= document.getElementById("cor_origen").value;
+				var cor_destino= document.getElementById("cor_destino").value;
+				
+				$.ajax({
+						type : 'GET',
+						url : 'consultas.php?caso=dist_eucl_click&origen='+cor_origen+'&destino='+cor_destino,
+						dataType : 'json',
+						success : function(data){
+							alert('Distancia Euclediana: '+data);
+							
+							},
+							error : function(XMLHttpRequest, textStatus, errorThrown) {
+							// Display error
+							}
+					});
+			}
+			
+			function nueva_ruta(){
+				location.reload();
+			}
+
+			
+    </script>
+
+	</body>
+</html>

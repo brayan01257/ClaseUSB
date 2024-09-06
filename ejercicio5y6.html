@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.js"></script>  <!-- plugin jquery -->
+	
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.css" />
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.6.0/leaflet.js"></script>
+	
+	<link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.0/css/font-awesome.css" rel="stylesheet"/>
+	
+	<script src="posición/src/L.Control.Locate.js" ></script>	
+	<link rel="stylesheet" href="posición/dist/L.Control.Locate.min.css" />	
+	<script src="https://kit.fontawesome.com/02eb88b373.js" crossorigin="anonymous"></script>
+	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.EasyButton/2.4.0/easy-button.js"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.EasyButton/2.4.0/easy-button.css" />
+	<link href="https://fonts.googleapis.com/css?family=Lobster" rel="stylesheet">
+	<link rel="stylesheet" href="panel_lateral/main.css">
+	
+	<script src="graticule/Leaflet.Graticule.js"></script>
+	<script src="glass/leaflet.magnifyingglass.js"></script>
+	
+	<link rel="stylesheet" href="betterscale/L.Control.BetterScale.css" />
+	<script src="betterscale/L.Control.BetterScale.js"></script>
+	
+	<link rel="stylesheet" href="geocodificar/l.geosearch.css" />
+	<script src="geocodificar/l.control.geosearch.js"></script>
+    <script src="geocodificar/l.geosearch.provider.esri.js"></script>
+	<script src="geocodificar/leaflet-search.js"></script>
+	
+	<script src="leaflet-heat.js"></script>
+	<script src="leaflet.wms.js"></script>
+	<title>Ejercicio C5</title>
+	
+	
+	
+	<style>
+	*{	
+		padding: 0% ;
+		margin: 0% 0%;		
+	}
+	html, body{
+	height:100% ;
+	width:100% vw;
+	}
+	
+	
+	#map{
+
+	width:100%;
+	height:100%;}
+
+	#norte{
+	position:fixed;
+	width:4%;
+	left: 4%;
+	padding: 1.2%;
+	}
+
+	</style>
+	
+	
+	
+	</head>	
+	<body>
+
+
+			<div id="map" style="z-index:0">
+				<img id="norte" src="https://image.flaticon.com/icons/png/512/16/16797.png" style="z-index:9999" ></img>
+			</div>
+			
+		<input type="checkbox" class="checkbox" id="check">
+		<label class="menu" for="check">|||</label>
+		<div class="left-panel">
+			<ul>
+				<a href="index_pgweb_ejercicio5y6.html"><li>EsvGis</li></a>
+				<a href=""><li>Guia de usuario</li></a>			
+				<a href=""><li>Blog</li></a>		
+			</ul>
+		</div>
+
+	</body>
+	<script>
+
+	
+	var map = L.map('map',
+	{
+		zoom: 10
+	}).setView([3.42335,-76.52086], 12);           ////SE INSERTA UN MAPA EN EL DIV "map" con coordenadas 3.42335,-76.52086
+	
+	
+	var mapabase = L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', 
+		{
+			maxZoom: 15,
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		});
+	
+	var mapabase2 = L.tileLayer('http://{s}.tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png', 
+		{
+			maxZoom: 18,
+			attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+		})
+	
+
+	mapabase.addTo(map);
+	
+	L.control.scale({position:'bottomleft'}).addTo(map);
+	var leyenda = L.control.layers({mapabase,mapabase2}).addTo(map);
+
+	var icono = L.icon({
+			iconSize: [35, 35],
+			iconUrl:'locali.png'
+			});
+			
+	var icono1 = L.icon({
+			iconSize: [35, 35],
+			iconUrl:'https://image.flaticon.com/icons/png/512/86/86319.png'
+			});
+
+
+	var geojsonFeature = [{
+    "type": "Feature",
+    
+    "geometry": {
+        "type": "Point",
+        "coordinates": [-76.52481, 3.37325]
+		
+    },
+	"properties": {
+		"name": "Punto1"
+	}
+	}, {
+    "type": "Feature",
+    
+    "geometry": {
+        "type": "Point",
+        "coordinates": [-76.54061,3.38315]
+		
+    },
+		"properties": {
+		"name": "Punto2"
+	}	
+	}, {
+    "type": "Feature",
+    
+    "geometry": {
+        "type": "Point",
+        "coordinates": [-76.52694,3.38935]	
+		
+    },
+	"properties": {
+		"name": "Punto3"
+	}	
+	},{
+    "type": "Feature",
+    
+    "geometry": {
+        "type": "Point",
+        "coordinates": [-76.53587,3.40145]	
+		
+    },
+	"properties": {
+		"name": "Punto4"
+	}	
+	}];		
+
+	var estilo = 
+		{
+			radius: 7,
+			fillColor: "yellow",
+			color: "black",
+			weight: 1,
+			opacity: 1,
+			fillOpacity: 1,
+		};
+		
+	var encima = 
+		{
+			radius: 7,
+			fillColor: "black",
+			color: "black",
+			weight: 1,
+			opacity: 1,
+			fillOpacity: 1,
+		};
+		
+	var marcador = L.geoJSON(geojsonFeature,{
+		pointToLayer:function(feature, latlng){
+		label = String(feature.properties.name)
+		return L.marker(latlng, {icon: icono})
+		.bindTooltip(label,{permanent: true, className: 'labelstyle', direction:'top', opacity: 1})
+		.openTooltip()}});
+
+	//LINK PARA ICONOS https://www.freepik.com/popular-icons	
+
+	L.easyButton('<img src="https://as2.ftcdn.net/jpg/00/32/93/35/500_F_32933593_uiHpSO0Q4NYKi2AcXzYDOIsUplESknuU.jpg"  align="absmiddle" height="16px" >', function() 
+		{
+		alert('reiniciando pagina');
+		location.reload();
+
+	  	}).addTo(map);
+		
+			
+	L.easyButton('<img src="https://image.flaticon.com/icons/png/512/98/98118.png"  align="absmiddle" height="16px" >', function() 
+		{
+		marcador.addTo(map);
+		
+		leyenda.addOverlay(marcador, label);
+		
+	  	}).addTo(map);
+		
+
+	L.easyButton('<img src="https://as1.ftcdn.net/jpg/02/02/24/12/500_F_202241227_W12NZE6F7n40dQ8AWeaFgijisFP8tbyF.jpg"  align="absmiddle" height="16px" >', function() 
+		{	
+		
+		var heat = L.heatLayer([[marcador._layers[86]._latlng.lat,marcador._layers[86]._latlng.lng,10]],{radius: 50}).addTo(map);
+		
+		for (var i = 88; i<102; i++){
+
+		heat.addLatLng([marcador._layers[i]._latlng.lat,marcador._layers[i]._latlng.lng,10],{radius: 25});
+
+		};
+		
+
+		
+	  	}).addTo(map);
+
+	var comunas = L.tileLayer.wms('http://idesc.cali.gov.co:8081/geoserver/wms?service=WMS&version=1.1.0',
+		{
+		layers: 'idesc:mc_comunas',
+		format: 'image/png',
+		transparent: true,
+		}).addTo(map);
+		
+	var source = L.WMS.source('http://idesc.cali.gov.co:8081/geoserver/wms?service=WMS&version=1.1.0', {
+		  opacity: 0.1,
+	});
+	source.getLayer("mc_comunas").addTo(map);
+		
+
+
+		
+	var arboles_comuna = L.tileLayer.wms('http://idesc.cali.gov.co:8081/geoserver/wms?service=WMS&version=1.1.0',
+		{
+		layers: 'dapm_movilidad:mv_aiv_iv_est_inf_estado_superficie',
+		format: 'image/png',
+		transparent: true,
+		attribution: "estado_infraestructura",
+		}).addTo(map);
+		map.addLayer(arboles_comuna);
+		
+	
+	leyenda.addOverlay(comunas, 'Comunas');
+	leyenda.addOverlay(arboles_comuna, 'Estado Superficial de la Malla Vial');	
+	
+	L.control.betterscale({position:'bottomright'}).addTo(map);
+	L.control.ScaleFactor().addTo(map);	
+	
+	</script>
+	
+	<script>
+
+	L.control.locate({setView:'true',flyto:'true',drawCircle:'false',showCompass:'false',drawMarker:'false',keepCurrentZoomLevel:'true',locateOptions: {
+               enableHighAccuracy: true}}).addTo(map);
+
+	
+	L.latlngGraticule({
+			showLabel: true,
+			color: 'black',
+			format: 'dd',
+			precision: 1,
+			zoomInterval: [
+				{start: 10, end: 15, interval: 0.03}
+
+			]
+		});
+		
+	new L.Control.GeoSearch({provider: new L.GeoSearch.Provider.Esri(),
+		searchLabel: 'Buscar Dirección',
+		notFoundMessage: 'Lo sentimos, no se pudo encontrar esa dirección.',
+		zoomLevel: 14,
+		icon: new L.Icon.Default()
+	}).addTo(map);
+
+	</script>
+	
+</html> 

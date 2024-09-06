@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<title>Test 6 Leaflet</title>
+	<link rel="stylesheet" href="lib/leaflet/leaflet.css" />
+	<script src="lib/leaflet/leaflet.js"></script>
+
+	<link rel="stylesheet" href="lib/Leaflet.MousePosition-master/L.Control.MousePosition.css" />
+	<script src="lib/Leaflet.MousePosition-master/L.Control.MousePosition.js"></script>
+
+</head>
+<body>
+
+<div id="mapid" style="width: 1000px; height: 680px;">
+</div>
+
+<script>
+
+var mymap = L.map('mapid').setView([ 3.9610648 , -76.5363028 ], 9);
+
+		var wmsLayer1 = L.tileLayer.wms('http://localhost:8080/geoserver/wms?', {
+		layers: 'Clase10_sig3:vallell',
+		attribution: 'Municipios Valle',
+		format: 'image/png',
+		transparent: true
+		});
+
+		var wmsLayer2 = L.tileLayer.wms('http://idesc.cali.gov.co:8081/geoserver/wms?', {
+		layers: 'idesc:mc_manzanas',
+		attribution: 'Manzanas Cali',
+		format: 'image/png',
+		transparent: true
+		});
+		
+		var wmsLayer3 = L.tileLayer.wms('http://localhost:8080/geoserver/wms?', {
+		layers: 'Clase10_sig3:barrios',
+		attribution: 'Barrios Cali',
+		format: 'image/png',
+		transparent: true
+		});
+
+	wmsLayer1.addTo(mymap);
+	wmsLayer2.addTo(mymap);
+	wmsLayer3.addTo(mymap);
+
+/*
+	
+	new ol.layer.Tile({
+					title: 'Barrios Cali',
+			source: new ol.source.TileWMS({  url: 'http://localhost:8080/geoserver/wms?',
+		params: {'LAYERS': 'Clase10_sig3:barrios',transparent: true, 'TILED': true},
+	serverType: 'geoserver'
+	})}),
+
+	
+	new ol.layer.Tile({
+					title: 'Vías departamentales',
+			source: new ol.source.TileWMS({  url: 'http://localhost:8080/geoserver/wms?',
+		params: {'LAYERS': 'Clase10_sig3:viasvalle2ll',transparent: true, 'TILED': true},
+	serverType: 'geoserver'
+	})}),			
+*/
+	
+L.control.mousePosition().addTo(mymap);
+ map.mousepositionControl.onClick(function(){alert('click on mousecontrol')});
+        var c = L.Control.mouseposition({position:'topright'});
+        map.addControl(c);
+</script>
+
+</body>
+</html>

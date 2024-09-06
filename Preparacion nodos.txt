@@ -1,0 +1,4 @@
+alter table vias_wgs84 add column source integer;
+alter table vias_wgs84 add column target integer;
+
+select pgr_createTopology('vias_wgs84',0.001,'geom','gid','source','target')
