@@ -1,0 +1,14 @@
+h1 {
+    color: brown;
+}
+
+body {
+    height: 95vh; /* Ajusta la altura del body al 90% de la altura del viewport */
+    margin: 0; /* Asegúrate de que no haya márgenes predeterminados */
+    padding: 0; /* Asegúrate de que no haya rellenos predeterminados */
+    border: 0; /* Sin borde */
+}
+
+#map {
+     height: 75vh; 
+}
